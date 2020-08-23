@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "Auto Like on Youtube",
+    "short_name": "Auto Like",
+    "description": "Auto-clicks the Like button based on the youtubers you´ve listed.",
+    "version": "1.0.0",
+    "author": "Quellensa",
+    "content_scripts": [
+      {
+        "matches": ["https://youtube.com/*", "https://youtu.be/*"],
+        "js": ["content.js"]
+      }
+    ],
+    "popup_scripts": [
+        {
+            "js" : ["popup.js"]
+        }
+    ]
+  }
