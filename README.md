@@ -4,11 +4,11 @@
 
 
 # TO DO
-* [ ] Get Like Button
+* [*] Get Like Button
+* [*] add Pop-Up Input
+* [*] make connection popup to Content
+* [*] get dislike button
 * [ ] Get Youtuber
-* [ ] add Pop-Up Input
-* [ ] make connection popup to Content
-* [ ] get dislike button
 * [ ] 
 * [ ]
 
