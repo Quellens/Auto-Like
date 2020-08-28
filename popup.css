@@ -1,8 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Londrina+Solid&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Londrina Solid', cursive;
 }
+
+h2 {
+  text-align: center;
+  
+}
+
+#submit {
+  background-color: #48BF84;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 3px;
+  border: 1px solid black;
+}
+
+
+input {
+  background-color: #E1E2EF;
+  margin:  25px;
+}
+
+
+#error {
+  color: red;
+  opacity: 0;
+}
+
+.fadeout {
+  animation: fadeOut 1s ;
+
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
 
 .switch {
     position: relative;
@@ -63,3 +106,5 @@
   .slider.round:before {
     border-radius: 50%;
   }
+
+

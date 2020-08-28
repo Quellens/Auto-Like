@@ -7,13 +7,18 @@ likeDefault.init();
 }
 
 
+chrome.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+       console.log(message); 
+    }
+);
 
+// Reloads the MaterialLiker whenever the user goes to another Video..
 let old_url = '';
 let mutationObserver = new MutationObserver( mutations => {
     mutations.forEach( (_) => {
             if (location.href != old_url) {
                 old_url = location.href;
-                console.log('URL was changed');
                 setTimeout(()=>{likeDefaultfn()},1000);
             }
     });

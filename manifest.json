@@ -4,11 +4,15 @@
     "short_name": "Auto Like",
     "description": "Auto-clicks the Like button based on the youtubers you´ve listed.",
     "version": "1.0",
-    "permissions": ["activeTab", "storage"],
+    "permissions": ["activeTab", "storage", "tabs"],
     "content_scripts": [
       {
         "matches": ["*://youtube.com/*", "*://*.youtube.com/*"],
         "js": ["like.js", "content.js"]
       }
-    ]
+    ],
+    "browser_action": {
+      "default_popup": "popup.html",
+      "default_title": "Auto Like"
+    }
   }
