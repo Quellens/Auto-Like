@@ -6,10 +6,11 @@ const errorElement = document.querySelector("#error");
 
 let channelname, listOfChannelnames = [];
 
+let like_when = "timed";
+
 submitButton.addEventListener("click",()=>{
     channelname = inputButton.value;
     createRow(channelname);
-
 })
 
 function createRow(input){
@@ -57,13 +58,34 @@ function createErrorMessage(str) {
 }, 3000);
 }
 
-
 function sendRequest(){
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, 
       { 
-         listOfChannelnames
+         listOfChannelnames,
+         like_when,
+         disabled: false
       });
     }
 );
 }
+
+
+//Like when? 
+const afterSeconds = document.getElementById("when1");
+const after50Percent = document.getElementById("when2");
+const instandly = document.getElementById("when3");
+[after50Percent, afterSeconds, instandly].forEach(option => {
+   option.addEventListener("click", (e)=>{
+     switch (option.id) {
+       case "when1": like_when = "timed";;
+       break;
+       case "when2": like_when = "percent";
+       break;
+       case "when3": like_when = "instandly";
+       break;
+     }
+     sendRequest();
+   })
+
+})

@@ -10,7 +10,6 @@
 
 h2 {
   text-align: center;
-  
 }
 
 #submit {
@@ -21,10 +20,15 @@ h2 {
   border: 1px solid black;
 }
 
+div {
+  text-align: left;
+  margin-left: 10%;
+}
+
 
 input {
   background-color: #E1E2EF;
-  margin:  25px;
+  margin:  10px;
 }
 
 
