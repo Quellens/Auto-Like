@@ -5,6 +5,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Londrina Solid', cursive;
+    text-align: center;
 }
 
 h2 {
@@ -30,6 +31,11 @@ input {
 #error {
   color: red;
   opacity: 0;
+}
+
+#list {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .fadeout {

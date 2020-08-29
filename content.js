@@ -1,7 +1,10 @@
+let listOfChannelnames = [];
+
 function likeDefaultfn(){
 const likeDefault = new MaterialLiker({
   like_when : "timed",
   disabled: false,
+  listOfChannelnames
 })
 likeDefault.init();
 }
@@ -9,7 +12,8 @@ likeDefault.init();
 
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
-       console.log(message); 
+       listOfChannelnames = message.listOfChannelnames;
+       likeDefaultfn();
     }
 );
 

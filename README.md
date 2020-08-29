@@ -3,13 +3,18 @@
  This chrome extension auto-clicks the Like button based on the youtubers you´ve listed.
 
 
+GET https://www.googleapis.com/youtube/v3/channels?part=snippet&forUsername={CHANNEL}&key={YOUR_API_KEY}
+
+get the URL with response.items[0].snippet.thumbnails.default.url 
+
+
 # TO DO
 * [*] Get Like Button
 * [*] add Pop-Up Input
 * [*] make connection popup to Content
 * [*] get dislike button
 * [ ] Get Youtuber
-* [ ] 
+* [ ] LEARN ABOUT GET
 * [ ]
 
 

@@ -1,5 +1,3 @@
-console.log("works..");
-
 let cache = {
     likeButton : null,
     dislikeButton: null
@@ -13,12 +11,6 @@ class MaterialLiker {
       this.attemptLike = this.attemptLike.bind(this);
     }
 
-    stop() {
-      if (typeof this.onStop === 'function') {
-        console.log('stopped');
-        this.onStop();
-      }
-    }
 
     reset() {
       cache = {};
@@ -41,12 +33,9 @@ class MaterialLiker {
     }
 
     waitForVideo(callback) {
-      console.log('waiting for video...');
-  
       this.video = document.querySelector('.video-stream');
       // Does the video exist?
       if (this.video) {
-        console.log('...video ready');
         callback();
           }
       else {
@@ -69,29 +58,33 @@ class MaterialLiker {
       this.waitForButtons(() => {
         if (this.isVideoRated()) {
           console.log('video already rated');
-          return this.stop();
+          return;
         }
   
         cache.likeButton.click();
         console.log('like button clicked');
-        this.stop();
       });
     }
   
     init() {
-      console.log('liker initialized');
+    
       if (this.options.disabled || !document.querySelector('ytd-app[is-watch-page]')) {
-        console.log('liker is disabled or not a watch page');
-        return this.stop();
+        return;
       }
-  
+      console.log('liker initialized');  
       this.reset();
-  
+      
+
+      if(this.options.listOfChannelnames.length > 0) {
+        console.log(listOfChannelnames);
+        if(!listOfChannelnames.some(channelname => channelname == document.querySelector(".yt-formatted-string").innerText)){
+          return;
+        }
+      }
       switch (this.options.like_when) {
 
         case 'timed':
           return this.waitForVideo(() => {
-              console.log("timer starts")
             const { video } = this;
             const onVideoTimeUpdate = e => {
               // Are we 5 seconds in or at the end of the video?
