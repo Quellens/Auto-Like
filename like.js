@@ -79,14 +79,15 @@ class MaterialLiker {
       console.log('liker initialized');  
       this.reset();
       
-    if(this.options.listOfChannelnames){
       if(this.options.listOfChannelnames.length > 0) {
-        console.log(listOfChannelnames);
-        if(!listOfChannelnames.some(channelname => channelname == document.querySelector(".yt-formatted-string").innerText)){
+        console.log(this.options.listOfChannelnames);
+        if(!this.options.listOfChannelnames.some(channelname => channelname == document.querySelector(".yt-formatted-string").innerText)){
           return;
         }
+      } else {
+        return;
       }
-    }
+    
       switch (this.options.like_when) {
 
         case 'timed':

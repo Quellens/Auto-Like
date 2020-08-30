@@ -8,6 +8,10 @@
     text-align: center;
 }
 
+body {
+  background-color: whitesmoke;
+}
+
 h2 {
   text-align: center;
 }
@@ -25,12 +29,10 @@ div {
   margin-left: 10%;
 }
 
-
 input {
   background-color: #E1E2EF;
   margin:  10px;
 }
-
 
 #error {
   color: red;
@@ -42,9 +44,22 @@ input {
   margin-right: auto;
 }
 
+table {
+  border: 1px solid black;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 2px;
+
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
 .fadeout {
   animation: fadeOut 1s ;
-
 }
 
 @keyframes fadeOut {

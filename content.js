@@ -5,12 +5,13 @@ function setup(){
          const like = new MaterialLiker(message);
          if(!message.disabled)
          like.init();
-       //  defaultLike.stop();
+         defaultLike.stop();
     }
 )
   const defaultLike = new MaterialLiker({
     like_when: "timed",
-    disabled: false,  
+    disabled: false,
+    listOfChannelnames: []  
   });
   defaultLike.init();
 }

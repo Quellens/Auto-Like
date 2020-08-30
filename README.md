@@ -9,13 +9,13 @@ get the URL with response.items[0].snippet.thumbnails.default.url
 
 
 # TO DO
-* [*] Get Like Button
-* [*] add Pop-Up Input
-* [*] make connection popup to Content
-* [*] get dislike button
-* [ ] Get Youtuber
+* [x] Get Like Button
+* [x] add Pop-Up Input
+* [x] make connection popup to Content
+* [x] get dislike button
+* [x] Get Youtuber
 * [ ] LEARN ABOUT GET
-* [ ]
+* [ ] Make backend work
 
 
 ## Installation
