@@ -1,28 +1,34 @@
-function setup(){
-  chrome.runtime.onMessage.addListener(
-      function(message, sender, sendResponse) {
-          console.log(message);
-         const like = new MaterialLiker(message);
-         if(!message.disabled)
-         like.init();
-         defaultLike.stop();
+let options;
+
+let like;
+
+chrome.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+        options = message;
+        like = new MaterialLiker(options);
+        chrome.storage.local.set(options);
+        like.init();
     }
 )
-  const defaultLike = new MaterialLiker({
-    like_when: "timed",
-    disabled: false,
-    listOfChannelnames: []  
-  });
-  defaultLike.init();
-}
+
+chrome.storage.local.get(options, (data) => {
+    options = data;
+});
 
 // Reloads the MaterialLiker whenever the user goes to another Video..
 let old_url = '';
 let mutationObserver = new MutationObserver( mutations => {
     mutations.forEach( (_) => {
             if (location.href != old_url) {
+                console.log("URL Changed");
                 old_url = location.href;
-                setTimeout(()=>{setup()},1000);
+                setTimeout(()=>{
+                    if(!options) options = {
+                        disabled: true,
+                    }
+                    like = new MaterialLiker(options);
+                    like.init();
+                },3000);
             }
     });
 });

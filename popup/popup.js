@@ -3,15 +3,17 @@ const submitButton = document.getElementById("submit");
 const inputButton = document.getElementById("youtuber");
 const table = document.querySelector("table");
 const errorElement = document.querySelector("#error");
-
+let options;
 let channelname, listOfChannelnames = [];
 
 let like_when = "timed";
 
-submitButton.addEventListener("click",()=>{
+inputButton.addEventListener("keydown",(e)=>{
+  if(e.key == "Enter"){
     channelname = inputButton.value;
     createRow(channelname);
-})
+  }
+});
 
 function createRow(input){
    if (input == "" || undefined || null) return;
@@ -45,9 +47,8 @@ function createRow(input){
     row.remove();
     listOfChannelnames.pop();
   })
-
   listOfChannelnames.push(input);
-  sendRequest();
+
 }
 
 function createErrorMessage(str) {
@@ -59,17 +60,20 @@ function createErrorMessage(str) {
 }
 
 function sendRequest(){
+  options = { 
+    listOfChannelnames,
+    like_when,
+    disabled: false,
+ }
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, 
-      { 
-         listOfChannelnames,
-         like_when,
-         disabled: false
-      });
-    }
+    chrome.tabs.sendMessage(tabs[0].id, options);
+  }
 );
+ chrome.storage.local.set(options);
 }
 
+
+submitButton.addEventListener("click", sendRequest);
 
 //Like when? 
 const afterSeconds = document.getElementById("when1");
@@ -85,7 +89,29 @@ const instandly = document.getElementById("when3");
        case "when3": like_when = "instandly";
        break;
      }
-     sendRequest();
    })
 
 })
+
+
+chrome.storage.local.get( options, (data)=>{
+  if(data.listOfChannelnames){
+    data.listOfChannelnames.forEach(channelname => {
+      createRow(channelname);
+    })
+  }
+
+  if(data.like_when){
+    switch (data.like_when){
+      case "percent": after50Percent.checked = true;
+      break;
+      case "instandly": instandly.checked = true;
+      break;
+      default: afterSeconds.checked = true;
+      break; 
+    }
+  }
+  
+
+});
+

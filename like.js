@@ -76,12 +76,12 @@ class MaterialLiker {
       if (this.options.disabled || !document.querySelector('ytd-app[is-watch-page]')) {
         return;
       }
-      console.log('liker initialized');  
+      console.log('liker initialized');
+      console.log(this.options.listOfChannelnames)  
       this.reset();
       
       if(this.options.listOfChannelnames.length > 0) {
-        console.log(this.options.listOfChannelnames);
-        if(!this.options.listOfChannelnames.some(channelname => channelname == document.querySelector(".yt-formatted-string").innerText)){
+        if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase())){
           return;
         }
       } else {
