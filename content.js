@@ -1,11 +1,11 @@
-let options;
-
-let like;
+let options, like;
 
 chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
+    function(message) {
         options = message;
         like = new MaterialLiker(options);
+
+        // store options in content script
         chrome.storage.local.set(options);
         like.init();
     }
@@ -18,9 +18,10 @@ chrome.storage.local.get(options, (data) => {
 // Reloads the MaterialLiker whenever the user goes to another Video..
 let old_url = '';
 let mutationObserver = new MutationObserver( mutations => {
-    mutations.forEach( (_) => {
+    mutations.forEach( mutation => {
             if (location.href != old_url) {
                 console.log("URL Changed");
+
                 old_url = location.href;
                 setTimeout(()=>{
                     if(!options) options = {

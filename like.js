@@ -1,25 +1,12 @@
-let cache = {
-    likeButton : null,
-    dislikeButton: null
-}
-
 class MaterialLiker {
     constructor(options) {
       this.options = options;
       this.init = this.init.bind(this);
-      this.reset = this.reset.bind(this);
       this.attemptLike = this.attemptLike.bind(this);
+      this.likeButton = null;
+      this.dislikeButton = null;
     }
 
-
-    reset() {
-      cache = {};
-    }
-
-
-    stop(){
-      this.init = null;
-    }
 
     waitForButtons(callback) {
         let likebutton = document.querySelector('ytd-video-primary-info-renderer g path[d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"]');
@@ -27,9 +14,9 @@ class MaterialLiker {
         
           if (likebutton && dislikeButton) {
               // Find and store closest buttons
-              cache.likeButton = likebutton.closest('yt-icon-button');
-              cache.dislikeButton = dislikeButton.closest('yt-icon-button');
-        console.log('...buttons ready');
+              this.likeButton = likebutton.closest('yt-icon-button');
+              this.dislikeButton = dislikeButton.closest('yt-icon-button');
+    
         callback();
           }
       else {
@@ -51,10 +38,10 @@ class MaterialLiker {
     isVideoRated() {
       return (
         (
-          cache.likeButton.classList.contains('style-default-active') &&
-          !cache.likeButton.classList.contains('size-default')
+          this.likeButton.classList.contains('style-default-active') &&
+          !this.likeButton.classList.contains('size-default')
         ) ||
-        cache.dislikeButton.classList.contains('style-default-active')
+        this.dislikeButton.classList.contains('style-default-active')
       );
     }
   
@@ -66,27 +53,33 @@ class MaterialLiker {
           return;
         }
   
-        cache.likeButton.click();
+        this.likeButton.click();
         console.log('like button clicked');
       });
     }
   
-    init() {
-    
+     init() {
+      
+      chrome.runtime.onMessage.addListener(
+        () => {
+          this.options.disabled = true;
+        }
+      );
+
       if (this.options.disabled || !document.querySelector('ytd-app[is-watch-page]')) {
         return;
       }
-      console.log('liker initialized');
-      console.log(this.options.listOfChannelnames)  
-      this.reset();
-      
+
       if(this.options.listOfChannelnames.length > 0) {
-        if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase())){
+        if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
           return;
         }
       } else {
         return;
       }
+
+      console.log('liker initialized');
+      console.log(this.options)  
     
       switch (this.options.like_when) {
 
@@ -94,20 +87,21 @@ class MaterialLiker {
           return this.waitForVideo(() => {
             const { video } = this;
             const onVideoTimeUpdate = e => {
-              // Are we 5 seconds in or at the end of the video?
-              if (video.currentTime >= 5|| video.currentTime >= video.duration) {
+              if(this.options.disabled) return;
+              // Are we 5 seconds in the video?
+              if (video.currentTime >= 5) {
                 this.attemptLike();
                 video.removeEventListener('timeupdate', onVideoTimeUpdate);
               }
             }
             video.addEventListener('timeupdate', onVideoTimeUpdate);
           });
-         break;
 
         case 'percent':
           return this.waitForVideo(() => {
             const { video } = this;
             const onVideoTimeUpdate = e => {
+              if(this.options.disabled) return;
               // Are we more than 50% through the video?
               if (video.currentTime / video.duration >= 0.5) {
                 this.attemptLike();
@@ -116,11 +110,9 @@ class MaterialLiker {
             }
             video.addEventListener('timeupdate', onVideoTimeUpdate);
           });
-         break;
 
-        case 'instantly':
-          return this.attemptLike();
-          break;
+        case 'instandly': this.attemptLike();
+         break;
       }
     }
   }
