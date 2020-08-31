@@ -4,9 +4,9 @@ chrome.runtime.onMessage.addListener(
     function(message) {
         options = message;
         like = new MaterialLiker(options);
-
         // store options in content script
         chrome.storage.local.set(options);
+
         like.init();
     }
 )
@@ -20,13 +20,11 @@ let old_url = '';
 let mutationObserver = new MutationObserver( mutations => {
     mutations.forEach( mutation => {
             if (location.href != old_url) {
-                console.log("URL Changed");
-
+                //  URL Changed
                 old_url = location.href;
                 setTimeout(()=>{
-                    if(!options) options = {
-                        disabled: true,
-                    }
+                    if(!options) 
+                    options = { disabled: true}
                     like = new MaterialLiker(options);
                     like.init();
                 },3000);

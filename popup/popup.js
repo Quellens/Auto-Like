@@ -1,36 +1,66 @@
-console.log("popup");
 const submitButton = document.getElementById("submit");
 const inputButton = document.getElementById("youtuber");
 const table = document.querySelector("table");
 const errorElement = document.querySelector("#error");
-let options;
-let channelname, listOfChannelnames = [];
+const option1 = document.getElementById("option1");
+const option2 = document.getElementById("option2");
+const option3 = document.getElementById("option3");
+let  listOfChannelnames = [], like_when;
 
-let like_when = "timed";
+let options;
 
 inputButton.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
-    channelname = inputButton.value;
-    createRow(channelname);
+    createRow( inputButton.value);
+    inputButton.value = "";
+    save();
   }
+});
+
+// this is building the page by getting the saved options
+chrome.storage.local.get( options, (data)=>{
+  if(data.listOfChannelnames){
+    data.listOfChannelnames.forEach(channelname => {
+      createRow(channelname);
+    })
+  if(data.like_when){
+    like_when = data.like_when;
+  }
+  }
+
+  if(data.like_when){
+    switch (data.like_when){
+      case "percent": option2.checked = true;
+      break;
+      case "instandly": option3.checked = true;
+      break;
+      default: option1.checked = true;
+      break; 
+    }
+  }
+  
 });
 
 function createRow(input){
    if (input == "" || undefined || null) return;
+
    let list = Array.prototype.filter.call(table.children, element => element.tagName != "TBODY")
    let isDuplicate = false;
+   //checks if the input is already on the list
    list.forEach((row) => {
       Array.prototype.forEach.call(row.children, (child, index)=>{
           if(index % 2 == 1){
             if(child.innerText == input){
-                createErrorMessage( input+" is already on the list!");
+                createMessage( input+" is already on the list!", "red");
                 isDuplicate = true;
             } 
           }
       } )
    });
+
   if(isDuplicate) return;
 
+  // creating the row
  const row = document.createElement("tr");
   table.appendChild(row);
  const td1 = document.createElement("td");
@@ -42,76 +72,63 @@ function createRow(input){
   row.appendChild(td1);
   row.appendChild(td2);
   row.appendChild(removeButton);
-
+ 
+  //make removeButton work
   removeButton.addEventListener("click", ()=>{
     row.remove();
-    listOfChannelnames.pop();
+    //remove it from the array
+    listOfChannelnames = listOfChannelnames.filter(name => name != removeButton.parentElement.children[1].innerText);
+      save();
   })
   listOfChannelnames.push(input);
-
 }
 
-function createErrorMessage(str) {
+function createMessage(str, color) {
   errorElement.style.opacity = 1;
   errorElement.innerText = str;
+  errorElement.style.color = color;
   setTimeout(()=>{ errorElement.classList.add("fadeout");
   errorElement.style.opacity = 0;          
 }, 3000);
 }
 
 function sendRequest(){
+   save();
+   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+   chrome.tabs.sendMessage(tabs[0].id, options);
+   });
+
+}
+
+submitButton.addEventListener("click", sendRequest);
+
+function save(){
   options = { 
     listOfChannelnames,
     like_when,
     disabled: false,
- }
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, options);
   }
-);
- chrome.storage.local.set(options);
+  chrome.storage.local.set(options);
+  console.log(options);
 }
 
 
-submitButton.addEventListener("click", sendRequest);
-
-//Like when? 
-const afterSeconds = document.getElementById("when1");
-const after50Percent = document.getElementById("when2");
-const instandly = document.getElementById("when3");
-[after50Percent, afterSeconds, instandly].forEach(option => {
+// this sets the like_when variable right
+[option1,option2,option3].forEach(option => {
    option.addEventListener("click", (e)=>{
      switch (option.id) {
-       case "when1": like_when = "timed";;
+       case "option1": like_when = "timed";;
        break;
-       case "when2": like_when = "percent";
+       case "option2": like_when = "percent";
        break;
-       case "when3": like_when = "instandly";
+       case "option3": like_when = "instandly";
        break;
      }
+     save();
    })
-
 })
 
 
-chrome.storage.local.get( options, (data)=>{
-  if(data.listOfChannelnames){
-    data.listOfChannelnames.forEach(channelname => {
-      createRow(channelname);
-    })
-  }
-
-  if(data.like_when){
-    switch (data.like_when){
-      case "percent": after50Percent.checked = true;
-      break;
-      case "instandly": instandly.checked = true;
-      break;
-      default: afterSeconds.checked = true;
-      break; 
-    }
-  }
-  
-
-});
-
+setTimeout(() => {
+ createMessage("Don't forget to submit!", "green")
+},15000)
