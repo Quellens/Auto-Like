@@ -15,7 +15,7 @@ get the URL with response.items[0].snippet.thumbnails.default.url
 * [x] get dislike button
 * [x] Get channelname (succeded sucessfully)
 * [x] Make backend work
-* [ ] Disable and Enable Liker
+* [x] Disable and Enable Liker
 * [ ] Refactor It!
 * [ ] Make Standard Channelimages
 * [ ] Take image URL from content script and embed it to popup script
