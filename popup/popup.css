@@ -70,12 +70,13 @@ tr:nth-child(even) {
   }
 }
 
-
+/* Slider setup */
 .switch {
     position: relative;
     display: inline-block;
     width: 60px;
     height: 34px;
+    margin-bottom: 10px;
   }
   
   .switch input { 
@@ -86,49 +87,34 @@ tr:nth-child(even) {
   
   .slider {
     position: absolute;
-    cursor: pointer;
+    cursor: col-resize;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .3s;
+    background-color: #636363;
     transition: .3s;
+    border: 2px solid black;
+    border-radius: 34px;
   }
   
   .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
+    height: 30px;
+    width: 30px;
+    left: 0px;
+    bottom: 0px;
     background-color: white;
-    -webkit-transition: .3s;
     transition: .3s;
+    border-radius: 50%;
   }
   
   input:checked + .slider {
-    background-color: #2196F3;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    background-color: #35A1E9;
   }
   
   input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
     transform: translateX(26px);
+    background-color: #E3F6DF;
   }
-  
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 34px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
-
-

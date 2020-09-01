@@ -1,3 +1,4 @@
+// get all the elements..
 const submitButton = document.getElementById("submit");
 const inputButton = document.getElementById("youtuber");
 const table = document.querySelector("table");
@@ -5,9 +6,13 @@ const errorElement = document.querySelector("#error");
 const option1 = document.getElementById("option1");
 const option2 = document.getElementById("option2");
 const option3 = document.getElementById("option3");
-let  listOfChannelnames = [], like_when;
+const switcher = document.querySelector(".switch");
+const switchcheck = document.getElementById("check");
+const para = document.getElementById("disable_enable");
 
-let options;
+let  listOfChannelnames = [], like_when, disabled;
+
+let options; // options will be { like_when, disabled and listOfChannelnames}
 
 inputButton.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
@@ -23,12 +28,12 @@ chrome.storage.local.get( options, (data)=>{
     data.listOfChannelnames.forEach(channelname => {
       createRow(channelname);
     })
-  if(data.like_when){
-    like_when = data.like_when;
-  }
+  
   }
 
   if(data.like_when){
+    like_when = data.like_when;
+
     switch (data.like_when){
       case "percent": option2.checked = true;
       break;
@@ -39,6 +44,15 @@ chrome.storage.local.get( options, (data)=>{
     }
   }
   
+    disabled = data.disabled;
+    if(!disabled){
+      switchcheck.checked = true;
+      para.innerText = "Disable Liker";
+    } else {
+      switchcheck.checked = false;
+      para.innerText = "Enable Liker";
+    }
+
 });
 
 function createRow(input){
@@ -60,7 +74,7 @@ function createRow(input){
 
   if(isDuplicate) return;
 
-  // creating the row
+  // creating the row 
  const row = document.createElement("tr");
   table.appendChild(row);
  const td1 = document.createElement("td");
@@ -78,10 +92,27 @@ function createRow(input){
     row.remove();
     //remove it from the array
     listOfChannelnames = listOfChannelnames.filter(name => name != removeButton.parentElement.children[1].innerText);
-      save();
+    save();
   })
+
   listOfChannelnames.push(input);
 }
+
+// this sets the like_when variable right
+[option1,option2,option3].forEach(option => {
+  option.addEventListener("click", (e)=>{
+    switch (option.id) {
+      case "option1": like_when = "timed";;
+      break;
+      case "option2": like_when = "percent";
+      break;
+      case "option3": like_when = "instandly";
+      break;
+    }
+    save();
+  })
+})
+
 
 function createMessage(str, color) {
   errorElement.style.opacity = 1;
@@ -92,12 +123,25 @@ function createMessage(str, color) {
 }, 3000);
 }
 
+
+switcher.addEventListener("change", () => {
+  if(switchcheck.checked){
+    disabled = false;
+    para.innerText = "Disable Liker";
+  }
+ 
+  if(switchcheck.checked == false){
+    disabled = true;
+    para.innerText = "Enable Liker";
+  }
+   sendRequest();
+})
+
 function sendRequest(){
    save();
    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
    chrome.tabs.sendMessage(tabs[0].id, options);
    });
-
 }
 
 submitButton.addEventListener("click", sendRequest);
@@ -106,29 +150,12 @@ function save(){
   options = { 
     listOfChannelnames,
     like_when,
-    disabled: false,
+    disabled
   }
   chrome.storage.local.set(options);
-  console.log(options);
 }
 
 
-// this sets the like_when variable right
-[option1,option2,option3].forEach(option => {
-   option.addEventListener("click", (e)=>{
-     switch (option.id) {
-       case "option1": like_when = "timed";;
-       break;
-       case "option2": like_when = "percent";
-       break;
-       case "option3": like_when = "instandly";
-       break;
-     }
-     save();
-   })
-})
-
-
-setTimeout(() => {
+setTimeout( () => {
  createMessage("Don't forget to submit!", "green")
 },15000)
