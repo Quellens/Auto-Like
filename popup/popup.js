@@ -13,7 +13,7 @@ const para = document.getElementById("disable_enable");
 let options; // options will be { like_when, disabled and listOfChannelnames}
 let  listOfChannelnames = [], like_when, disabled;
 
-let imagesource = ["help"];
+let images = [];
 
 inputButton.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
@@ -53,13 +53,32 @@ chrome.storage.local.get( options, (data) => {
       para.innerText = "Enable Liker";
     }
 
+    if(data.images) {
+      console.log(data.images);
+    }
 });
 
-//build in images
-chrome.storage.local.get(imagesource, (data) => {
 
-  console.log(data, imagesource);
-})
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+    chrome.storage.local.get( options, (data) => {
+      if(!data.images){
+      data.images = [];
+      }
+    let isAlreadyInStorage = false;
+    data.images.forEach(ob => {
+      if(ob.name == request.name){
+        isAlreadyInStorage = true;
+      }
+    });
+
+    if(!isAlreadyInStorage) {
+        data.images.push(request);
+        images = data.images;
+        save();
+      }
+      
+    });
+ });
 
 function createRow(input){
    if (input == "" || undefined || null) return;
@@ -156,18 +175,16 @@ function save(){
   options = { 
     listOfChannelnames,
     like_when,
-    disabled
+    disabled,
+    images
   }
+  if(Object.keys(options).length == 0) chrome.storage.local.set({
+    disabled: false,
+    like_when: "timed"
+  })
   chrome.storage.local.set(options);
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
- if(request.imagesource){
-   console.log(request.imagesource);
- imagesource.push(request.imagesource);
- chrome.storage.local.set({imagesource});
- }
-});
 
 
 

@@ -39,8 +39,10 @@ class MaterialLiker {
 
 
     waitForChannelname(callback) {
-      this.channelname = document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim();
-      if(this.channelname){
+      const channelnameElement = document.querySelector("#upload-info > #channel-name > div > div > #text > a");
+     
+      if(channelnameElement){
+        this.channelname = channelnameElement.innerText.toLowerCase().trim();
         callback();
       }
       else {
@@ -74,19 +76,21 @@ class MaterialLiker {
     
     sendImageUrl(){
         // no need to make a callback in this.waitForChannelname
-          if(this.options.listOfChannelnames.length > 0) {
-            if(this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
-              const image = document.querySelector(" a > #avatar > img");
-              if(image){
-                // get Image Url and send it to the popupscript
-                chrome.runtime.sendMessage({ 
-                  imagesource: image.src
-                });
-              } else {
-                setTimeout(this.sendImageUrl, 1000);
-              }
+        if(this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
+            const image = document.querySelector(" a > #avatar > img");
+            if(image && image.src != "") {
+              console.log("try to send it..")
+              // get Image Url and send it to the popupscript
+              chrome.runtime.sendMessage(
+              {
+                name: this.channelname,
+                src: image.src
+              });
+            } else {
+              setTimeout(this.sendImageUrl, 1000);
             }
-        };
+        }
+      
        
     }
   

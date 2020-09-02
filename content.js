@@ -24,7 +24,7 @@ let mutationObserver = new MutationObserver( mutations => {
                 old_url = location.href;
                 setTimeout(()=>{
                     if(!options) 
-                    options = { disabled: true}
+                    options = {disabled: true}
                     like = new MaterialLiker(options);
                     like.init();
                 },3000);
