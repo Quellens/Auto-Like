@@ -10,9 +10,10 @@ const switcher = document.querySelector(".switch");
 const switchcheck = document.getElementById("check");
 const para = document.getElementById("disable_enable");
 
+let options; // options will be { like_when, disabled and listOfChannelnames}
 let  listOfChannelnames = [], like_when, disabled;
 
-let options; // options will be { like_when, disabled and listOfChannelnames}
+let imagesource = ["help"];
 
 inputButton.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
@@ -23,12 +24,11 @@ inputButton.addEventListener("keydown",(e)=>{
 });
 
 // this is building the page by getting the saved options
-chrome.storage.local.get( options, (data)=>{
+chrome.storage.local.get( options, (data) => {
   if(data.listOfChannelnames){
     data.listOfChannelnames.forEach(channelname => {
       createRow(channelname);
-    })
-  
+    });
   }
 
   if(data.like_when){
@@ -54,6 +54,12 @@ chrome.storage.local.get( options, (data)=>{
     }
 
 });
+
+//build in images
+chrome.storage.local.get(imagesource, (data) => {
+
+  console.log(data, imagesource);
+})
 
 function createRow(input){
    if (input == "" || undefined || null) return;
@@ -155,7 +161,16 @@ function save(){
   chrome.storage.local.set(options);
 }
 
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+ if(request.imagesource){
+   console.log(request.imagesource);
+ imagesource.push(request.imagesource);
+ chrome.storage.local.set({imagesource});
+ }
+});
+
+
 
 setTimeout( () => {
  createMessage("Don't forget to submit!", "green")
-},15000)
+},15000);

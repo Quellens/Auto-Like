@@ -6,10 +6,10 @@ chrome.runtime.onMessage.addListener(
         like = new MaterialLiker(options);
         // store options in content script
         chrome.storage.local.set(options);
-
         like.init();
+        
     }
-)
+);
 
 chrome.storage.local.get(options, (data) => {
     options = data;

@@ -3,8 +3,10 @@ class MaterialLiker {
       this.options = options;
       this.init = this.init.bind(this);
       this.attemptLike = this.attemptLike.bind(this);
+      this.waitForChannelname = this.waitForChannelname.bind(this);
       this.likeButton = null;
       this.dislikeButton = null;
+      this.channelname = null;
     }
 
 
@@ -34,6 +36,17 @@ class MaterialLiker {
         setTimeout(() => this.waitForVideo(callback), 1000);
       }
     }
+
+
+    waitForChannelname(callback) {
+      this.channelname = document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim();
+      if(this.channelname){
+        callback();
+      }
+      else {
+        setTimeout(() => this.waitForChannelname(callback), 1000);
+      }
+    }
   
     isVideoRated() {
       return (
@@ -57,30 +70,52 @@ class MaterialLiker {
         console.log('like button clicked');
       });
     }
+
+    
+    sendImageUrl(){
+        // no need to make a callback in this.waitForChannelname
+          if(this.options.listOfChannelnames.length > 0) {
+            if(this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
+              const image = document.querySelector(" a > #avatar > img");
+              if(image){
+                // get Image Url and send it to the popupscript
+                chrome.runtime.sendMessage({ 
+                  imagesource: image.src
+                });
+              } else {
+                setTimeout(this.sendImageUrl, 1000);
+              }
+            }
+        };
+       
+    }
   
-     init() {
-      
-      chrome.runtime.onMessage.addListener(
-        () => {
+    init() {
+      //this prevents the liker from running if settings are changed and submitted.
+      chrome.runtime.onMessage.addListener( () => {
           this.options.disabled = true;
+          // on the runtime this.options.disabled is checked
         }
       );
 
+      if(this.options.listOfChannelnames.length > 0) {
+        this.waitForChannelname(() => {
+          if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  this.channelname)) {
+            this.options.disabled = true;
+          }
+        });
+      } else {
+        this.options.disabled = true;
+      };
+      //stop the method from running
       if (this.options.disabled || !document.querySelector('ytd-app[is-watch-page]')) {
         return;
       }
-
-      if(this.options.listOfChannelnames.length > 0) {
-        if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
-          return;
-        }
-      } else {
-        return;
-      }
-
-      console.log('liker initialized');
-      console.log(this.options)  
     
+      console.log('liker initialized');
+      console.log(this.options);  
+      this.sendImageUrl();
+    //liker initialized and ready to go..
       switch (this.options.like_when) {
 
         case 'timed':
