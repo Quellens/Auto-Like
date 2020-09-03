@@ -33,4 +33,3 @@ let mutationObserver = new MutationObserver( mutations => {
 });
 
 mutationObserver.observe(document.documentElement, {childList: true, subtree: true});
-
