@@ -14,5 +14,9 @@
     "browser_action": {
       "default_popup": "popup/popup.html",
       "default_title": "Auto Like"
+    },
+    "background": {
+      "persistent": false,
+      "scripts": ["background.js"]
     }
   }

@@ -26,8 +26,8 @@ inputButton.addEventListener("keydown",(e)=>{
 // this is building the page by getting the saved options
 chrome.storage.local.get( options, (data) => {
   if(data.listOfChannelnames){
-    data.listOfChannelnames.forEach(channelname => {
-      createRow(channelname);
+    data.listOfChannelnames.sort().forEach(channelname => {
+      createRow(channelname, data.images);
     });
   }
 
@@ -54,18 +54,23 @@ chrome.storage.local.get( options, (data) => {
     }
 
     if(data.images) {
-      console.log(data.images);
+      images = data.images;
+      console.log(images);
     }
 });
 
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+chrome.runtime.onMessage.addListener(function (request) {
+  console.log(request);
+  if(request != null) {
     chrome.storage.local.get( options, (data) => {
+     // console.log(data);
       if(!data.images){
       data.images = [];
       }
     let isAlreadyInStorage = false;
     data.images.forEach(ob => {
+  
       if(ob.name == request.name){
         isAlreadyInStorage = true;
       }
@@ -78,9 +83,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
       }
       
     });
+  }
  });
 
-function createRow(input){
+function createRow(input, imagedata) {
    if (input == "" || undefined || null) return;
 
    let list = Array.prototype.filter.call(table.children, element => element.tagName != "TBODY")
@@ -105,7 +111,15 @@ function createRow(input){
  const td1 = document.createElement("td");
  const td2 = document.createElement("td");
  const removeButton = document.createElement("button");
+ if(imagedata && imagedata.find(img => img.name == input.toLowerCase().trim())) {
+ let result = document.createElement("img");
+ result.setAttribute("width", 20); result.setAttribute("height", 20);
+ result.setAttribute("src",imagedata.find(img => img.name == input.toLowerCase().trim()).src);
+ td1.appendChild(result);
+ } else {
   td1.innerText = input[0];
+}
+
   td2.innerText = input;
   removeButton.innerHTML = "❌";
   row.appendChild(td1);
@@ -178,7 +192,7 @@ function save(){
     disabled,
     images
   }
-  if(Object.keys(options).length == 0) chrome.storage.local.set({
+  if(Object.keys(options).length <= 1) chrome.storage.local.set({
     disabled: false,
     like_when: "timed"
   })

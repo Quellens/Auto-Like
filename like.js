@@ -4,9 +4,9 @@ class MaterialLiker {
       this.init = this.init.bind(this);
       this.attemptLike = this.attemptLike.bind(this);
       this.waitForChannelname = this.waitForChannelname.bind(this);
+      this.channelname = null;
       this.likeButton = null;
       this.dislikeButton = null;
-      this.channelname = null;
     }
 
 
@@ -43,6 +43,7 @@ class MaterialLiker {
      
       if(channelnameElement){
         this.channelname = channelnameElement.innerText.toLowerCase().trim();
+        if(this.channelname)
         callback();
       }
       else {
@@ -75,22 +76,23 @@ class MaterialLiker {
 
     
     sendImageUrl(){
-        // no need to make a callback in this.waitForChannelname
-        if(this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  document.querySelector("#upload-info > #channel-name > div > div > #text > a").innerText.toLowerCase().trim())) {
-            const image = document.querySelector(" a > #avatar > img");
-            if(image && image.src != "") {
-              console.log("try to send it..")
-              // get Image Url and send it to the popupscript
-              chrome.runtime.sendMessage(
-              {
-                name: this.channelname,
-                src: image.src
-              });
-            } else {
-              setTimeout(this.sendImageUrl, 1000);
-            }
+      if(options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() == this.channelname)) {
+          const image = document.querySelector(" a > #avatar > img");
+          if(image && image.src != "") {
+            // get Image Url and send it to the backgroundscript => popupscript
+            console.log("sending..")
+          chrome.runtime.sendMessage(
+          {
+            name: this.channelname,
+            src: image.src,
+          });
+          } else {
+            // .bind(this) is very !important because without this == window and this.channelname not found
+            console.log("nextTry");
+            setTimeout(this.sendImageUrl.bind(this), 1000);
+          }
         }
-      
+
        
     }
   
@@ -116,9 +118,10 @@ class MaterialLiker {
         return;
       }
     
+  
+      this.sendImageUrl();
       console.log('liker initialized');
       console.log(this.options);  
-      this.sendImageUrl();
     //liker initialized and ready to go..
       switch (this.options.like_when) {
 
@@ -153,5 +156,6 @@ class MaterialLiker {
         case 'instandly': this.attemptLike();
          break;
       }
+
     }
   }
