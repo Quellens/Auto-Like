@@ -10,10 +10,8 @@ const switcher = document.querySelector(".switch");
 const switchcheck = document.getElementById("check");
 const para = document.getElementById("disable_enable");
 
-let options; // options will be { like_when, disabled and listOfChannelnames}
-let  listOfChannelnames = [], like_when, disabled;
-
-let images = [];
+let options; // options will be { like_when, disabled and listOfChannelnames, images}
+let  listOfChannelnames = [], like_when, disabled, images;
 
 inputButton.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
@@ -24,10 +22,16 @@ inputButton.addEventListener("keydown",(e)=>{
 });
 
 // this is building the page by getting the saved options
-chrome.storage.local.get( options, (data) => {
+chrome.storage.local.get(options, (data) => {
+
+  if(data.images) {
+    images = data.images;
+    console.log(data);
+  }
+
   if(data.listOfChannelnames){
     data.listOfChannelnames.sort().forEach(channelname => {
-      createRow(channelname, data.images);
+      createRow(channelname, data.images[channelname.toLowerCase().trim()]);
     });
   }
 
@@ -53,36 +57,20 @@ chrome.storage.local.get( options, (data) => {
       para.innerText = "Enable Liker";
     }
 
-    if(data.images) {
-      images = data.images;
-      console.log(images);
-    }
 });
 
 
 chrome.runtime.onMessage.addListener(function (request) {
-  console.log(request);
   if(request != null) {
     chrome.storage.local.get( options, (data) => {
-     // console.log(data);
-      if(!data.images){
-      data.images = [];
-      }
-    let isAlreadyInStorage = false;
-    data.images.forEach(ob => {
-  
-      if(ob.name == request.name){
-        isAlreadyInStorage = true;
-      }
-    });
-
-    if(!isAlreadyInStorage) {
-        data.images.push(request);
-        images = data.images;
-        save();
-      }
-      
-    });
+      if(!data.images) data.images = {};
+      for(let name in request){
+      if(!data.images[name])
+      data.images[name] = request[name];
+      };
+      images = data.images;
+      save();
+    })
   }
  });
 
@@ -111,14 +99,15 @@ function createRow(input, imagedata) {
  const td1 = document.createElement("td");
  const td2 = document.createElement("td");
  const removeButton = document.createElement("button");
- if(imagedata && imagedata.find(img => img.name == input.toLowerCase().trim())) {
+ 
+ if(imagedata) {
  let result = document.createElement("img");
  result.setAttribute("width", 20); result.setAttribute("height", 20);
- result.setAttribute("src",imagedata.find(img => img.name == input.toLowerCase().trim()).src);
+ result.setAttribute("src",imagedata.src);
  td1.appendChild(result);
  } else {
   td1.innerText = input[0];
-}
+ }
 
   td2.innerText = input;
   removeButton.innerHTML = "❌";
@@ -199,9 +188,6 @@ function save(){
   chrome.storage.local.set(options);
 }
 
-
-
-
-setTimeout( () => {
+setInterval( () => {
  createMessage("Don't forget to submit!", "green")
-},15000);
+},20000);

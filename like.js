@@ -79,12 +79,13 @@ class MaterialLiker {
       if(options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() == this.channelname)) {
           const image = document.querySelector(" a > #avatar > img");
           if(image && image.src != "") {
-            // get Image Url and send it to the backgroundscript => popupscript
-            console.log("sending..")
+            // get Image Url and send it to the backgroundscript => popupscript (when its active)
+          console.log("sending..");
           chrome.runtime.sendMessage(
           {
-            name: this.channelname,
-            src: image.src,
+            [this.channelname] : {
+            src: image.src
+            }
           });
           } else {
             // .bind(this) is very !important because without this == window and this.channelname not found
