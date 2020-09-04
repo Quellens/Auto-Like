@@ -1,8 +1,7 @@
 // get all the elements..
-const submitButton = document.getElementById("submit");
-const inputButton = document.getElementById("youtuber");
+const inputElement = document.getElementById("youtuber");
 const table = document.querySelector("table");
-const errorElement = document.querySelector("#error");
+const msgElement = document.getElementById("msg");
 const option1 = document.getElementById("option1");
 const option2 = document.getElementById("option2");
 const option3 = document.getElementById("option3");
@@ -10,13 +9,13 @@ const switcher = document.querySelector(".switch");
 const switchcheck = document.getElementById("check");
 const para = document.getElementById("disable_enable");
 
-let options; // options will be { like_when, disabled and listOfChannelnames, images}
+let options; // options will be { like_when, disabled, listOfChannelnames and images}
 let  listOfChannelnames = [], like_when, disabled, images;
 
-inputButton.addEventListener("keydown",(e)=>{
+inputElement.addEventListener("keydown",(e)=>{
   if(e.key == "Enter"){
-    createRow( inputButton.value);
-    inputButton.value = "";
+    createRow( inputElement.value);
+    inputElement.value = "";
     save();
   }
 });
@@ -30,7 +29,7 @@ chrome.storage.local.get(options, (data) => {
   }
 
   if(data.listOfChannelnames){
-    data.listOfChannelnames.sort().forEach(channelname => {
+    data.listOfChannelnames.forEach(channelname => {
       createRow(channelname, data.images[channelname.toLowerCase().trim()]);
     });
   }
@@ -60,6 +59,7 @@ chrome.storage.local.get(options, (data) => {
 });
 
 
+//this recieves the image source
 chrome.runtime.onMessage.addListener(function (request) {
   if(request != null) {
     chrome.storage.local.get( options, (data) => {
@@ -77,9 +77,9 @@ chrome.runtime.onMessage.addListener(function (request) {
 function createRow(input, imagedata) {
    if (input == "" || undefined || null) return;
 
-   let list = Array.prototype.filter.call(table.children, element => element.tagName != "TBODY")
+   let list = Array.prototype.filter.call(table.children, element => element.tagName != "TBODY");
    let isDuplicate = false;
-   //checks if the input is already on the list
+   //checks if the channel is already on the list
    list.forEach((row) => {
       Array.prototype.forEach.call(row.children, (child, index)=>{
           if(index % 2 == 1){
@@ -93,13 +93,14 @@ function createRow(input, imagedata) {
 
   if(isDuplicate) return;
 
-  // creating the row 
+  // create the row 
  const row = document.createElement("tr");
   table.appendChild(row);
  const td1 = document.createElement("td");
  const td2 = document.createElement("td");
  const removeButton = document.createElement("button");
- 
+
+ //get image if its not undefined
  if(imagedata) {
  let result = document.createElement("img");
  result.setAttribute("width", 20); result.setAttribute("height", 20);
@@ -110,7 +111,7 @@ function createRow(input, imagedata) {
  }
 
   td2.innerText = input;
-  removeButton.innerHTML = "❌";
+  removeButton.innerText = "❌";
   row.appendChild(td1);
   row.appendChild(td2);
   row.appendChild(removeButton);
@@ -120,8 +121,9 @@ function createRow(input, imagedata) {
     row.remove();
     //remove it from the array
     listOfChannelnames = listOfChannelnames.filter(name => name != removeButton.parentElement.children[1].innerText);
+    images[removeButton.parentElement.children[1].innerText.toLowerCase().trim()] = null;
     save();
-  })
+  });
 
   listOfChannelnames.push(input);
 }
@@ -141,16 +143,14 @@ function createRow(input, imagedata) {
   })
 })
 
-
 function createMessage(str, color) {
-  errorElement.style.opacity = 1;
-  errorElement.innerText = str;
-  errorElement.style.color = color;
-  setTimeout(()=>{ errorElement.classList.add("fadeout");
-  errorElement.style.opacity = 0;          
+  msgElement.style.opacity = 1;
+  msgElement.innerText = str;
+  msgElement.style.color = color;
+  setTimeout(()=>{ msgElement.classList.add("fadeout");
+  msgElement.style.opacity = 0;          
 }, 3000);
 }
-
 
 switcher.addEventListener("change", () => {
   if(switchcheck.checked){
@@ -172,22 +172,23 @@ function sendRequest(){
    });
 }
 
-submitButton.addEventListener("click", sendRequest);
+document.getElementById("submit").addEventListener("click", sendRequest);
 
 function save(){
+  if(disabled == undefined) disabled = false;
+  if(like_when == undefined) like_when = "timed";
+
   options = { 
     listOfChannelnames,
     like_when,
     disabled,
     images
-  }
-  if(Object.keys(options).length <= 1) chrome.storage.local.set({
-    disabled: false,
-    like_when: "timed"
-  })
+  };
+
   chrome.storage.local.set(options);
 }
 
-setInterval( () => {
+setTimeout( () => {
  createMessage("Don't forget to submit!", "green")
 },20000);
+msgElement.style.opacity = 0;

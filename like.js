@@ -1,4 +1,5 @@
 class MaterialLiker {
+
     constructor(options) {
       this.options = options;
       this.init = this.init.bind(this);
@@ -8,7 +9,6 @@ class MaterialLiker {
       this.likeButton = null;
       this.dislikeButton = null;
     }
-
 
     waitForButtons(callback) {
         let likebutton = document.querySelector('ytd-video-primary-info-renderer g path[d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"]');
@@ -37,7 +37,6 @@ class MaterialLiker {
       }
     }
 
-
     waitForChannelname(callback) {
       const channelnameElement = document.querySelector("#upload-info > #channel-name > div > div > #text > a");
      
@@ -52,35 +51,24 @@ class MaterialLiker {
     }
   
     isVideoRated() {
-      return (
-        (
-          this.likeButton.classList.contains('style-default-active') &&
-          !this.likeButton.classList.contains('size-default')
-        ) ||
-        this.dislikeButton.classList.contains('style-default-active')
-      );
+      return ((this.likeButton.classList.contains('style-default-active') &&
+        !this.likeButton.classList.contains('size-default')) ||
+        this.dislikeButton.classList.contains('style-default-active'));
     }
   
     attemptLike() {
-  
       this.waitForButtons(() => {
-        if (this.isVideoRated()) {
-          console.log('video already rated');
-          return;
-        }
-  
+        if (this.isVideoRated()) return;
+        //just this one line is liking the video lol
         this.likeButton.click();
-        console.log('like button clicked');
       });
     }
-
     
     sendImageUrl(){
       if(options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() == this.channelname)) {
           const image = document.querySelector(" a > #avatar > img");
           if(image && image.src != "") {
-            // get Image Url and send it to the backgroundscript => popupscript (when its active)
-          console.log("sending..");
+      // send channelimage to backgroundscript => popupscript (when its active)
           chrome.runtime.sendMessage(
           {
             [this.channelname] : {
@@ -88,42 +76,37 @@ class MaterialLiker {
             }
           });
           } else {
-            // .bind(this) is very !important because without this == window and this.channelname not found
-            console.log("nextTry");
+            // .bind(this) is very !important
             setTimeout(this.sendImageUrl.bind(this), 1000);
           }
         }
-
        
     }
   
     init() {
-      //this prevents the liker from running if settings are changed and submitted.
+      //if its not a video, stop
+      if(!document.querySelector('ytd-app[is-watch-page]')) return;
+
+      //this prevents the liker from running if settings are changed && submitted.
       chrome.runtime.onMessage.addListener( () => {
           this.options.disabled = true;
-          // on the runtime this.options.disabled is checked
-        }
-      );
-
+      });
+      //if the channelname is not in the list
       if(this.options.listOfChannelnames.length > 0) {
         this.waitForChannelname(() => {
-          if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  this.channelname)) {
+        if(!this.options.listOfChannelnames.some(channelname => channelname.toLowerCase().trim() ==  this.channelname)) {
             this.options.disabled = true;
           }
         });
       } else {
         this.options.disabled = true;
       };
+
       //stop the method from running
-      if (this.options.disabled || !document.querySelector('ytd-app[is-watch-page]')) {
-        return;
-      }
-    
+      if (this.options.disabled) return;
   
       this.sendImageUrl();
-      console.log('liker initialized');
-      console.log(this.options);  
-    //liker initialized and ready to go..
+      //liker initialized and ready to go..
       switch (this.options.like_when) {
 
         case 'timed':
@@ -131,8 +114,8 @@ class MaterialLiker {
             const { video } = this;
             const onVideoTimeUpdate = e => {
               if(this.options.disabled) return;
-              // Are we 5 seconds in the video?
-              if (video.currentTime >= 5) {
+              // Are we 15 seconds in the video?
+              if (video.currentTime >= 15) {
                 this.attemptLike();
                 video.removeEventListener('timeupdate', onVideoTimeUpdate);
               }
