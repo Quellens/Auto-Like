@@ -5,6 +5,9 @@
     "description": "Auto-clicks the Like button based on the youtubers you´ve listed.",
     "version": "1.0",
     "permissions": ["activeTab", "storage", "tabs"],
+    "icons": { 
+     "128": "img/icon128.png" 
+    },
     "content_scripts": [
       {
         "matches": ["*://youtube.com/*", "*://*.youtube.com/*"],
